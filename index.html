@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <title>Pex Earth</title>
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
+  <style>
+	body {
+	  padding: 0;
+	  margin: 0;
+	}
+
+	html,
+	body,
+	#mapid {
+	  height: 100%;
+	  width: 100%;
+	}
+  </style>
+</head>
+
+<body>
+  <div id="mapid"></div>
+  <script>
+	// generate map
+	var map = L.map('mapid').setView([25.596499, -2.639470], 3);
+
+	L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+	  maxZoom: 18,
+	  minZoom: 1,
+	  attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+		'<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+		'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+	  id: 'mapbox/streets-v11',
+	  tileSize: 512,
+	  zoomOffset: -1
+	}).addTo(map);
+
+	// get data from google sheet
+	var url = "https://sheets.googleapis.com/v4/spreadsheets/1_05A4oVxLxK9oKUfa02kliquNvIS2Ebld63mAVGMDfw/values/Sheet1?key=AIzaSyCN3l0SvokcNhFU7wP9j2oY5TZX10Fn-S8";
+	$.ajax({
+	  url: url,
+	  dataType: 'jsonp',
+	  success: function(data) {
+		var values = data.values.slice(1);
+		var name = "0";
+		var title = "1";
+        var dept = "2"
+        var guru = "3"
+		var loc = "4";
+		var lat = "5";
+		var long = "6";
+		var photo = "7";
+
+		$(values).each(function() {
+			name = this[0]
+			title = this[1]
+            dept = this[2]
+            guru = this[3]
+			loc = this[4]
+			lat = this[5]
+			long = this[6]
+			photo = this[7]
+
+            console.log(name)
+            console.log(lat)
+            console.log(long)
+
+			// safety net for empty values
+			if (!long || !lat) {
+				lat = "34.046550";
+				long = "-118.261930";
+			}
+
+			L.marker([parseFloat(lat), parseFloat(long)]).addTo(map).bindPopup("<center><img src=\"" + photo + "\" height=\"120px\" width=\"120px\" style=\"border-radius:50%\"/><br /><b><a href=\"" + guru + "\" target=\"_blank\">" + name + "</a></b><br />" + title + "</center>");
+		});
+	  }
+	});
+  </script>
+</body>
+
+</html>
